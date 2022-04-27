@@ -3,9 +3,14 @@ Created on Tue Apr 26 19:51:19 2022
 @author: ashwini
 Using FastAPI to create 
 """
+"""
+Created on Tue Apr 26 19:51:19 2022
+@author: ashwini
+Using FastAPI to create 
+"""
 # 1. Library imports
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, status
 from airbnb import airbnbData,prediction
 import numpy as np
 import pickle
@@ -28,8 +33,9 @@ def get_name(name: str):
 
 # 3. Expose the prediction functionality, make a prediction from the passed
 #    JSON data and return the predicted Bank Note with the confidence
-@app.post('/predict',response_model=prediction)
-# 'guests', 'bedrooms', 'beds', 'bathrooms', 'kitchen','free-parking', 'rating', 'City'
+# Data: 'guests', 'bedrooms', 'beds', 'bathrooms', 'kitchen','free-parking', 'rating', 'City'
+
+@app.post('/predict',response_model=prediction , status_code= status.HTTP_200_OK )
 async def predict_price(data:airbnbData):
     data = data.dict()
     guests=data['guests']
@@ -43,13 +49,11 @@ async def predict_price(data:airbnbData):
     print(model_enet.predict([[guests,bedrooms,beds,bathrooms,kitchen,free_parking,rating,City]]))
     prediction = model_enet.predict([[guests,bedrooms,beds,bathrooms,kitchen,free_parking,rating,City]])
 
-    return {
-        'Airbnb_price_prediction' : prediction
-    }
+    return {**data ,'Airbnb_price_prediction' : prediction }
 
 # 5. Run the API with uvicorn
 #    Will run on http://127.0.0.1:8000
 if __name__ == '__main__':
-    uvicorn.run(app, host='127.0.0.1', port=8000)
+    uvicorn.run(app, host='127.0.0.1')#, port=8000)
     
 #uvicorn app:app --reload
